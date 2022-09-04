@@ -39,6 +39,11 @@ const router = new Router(
                 component: LoginPage,
             },
             {
+                name: 'login-page',
+                path: '/',
+                component: LoginPage,
+            },
+            {
                 name: 'register-page',
                 path: '/register',
                 component: RegisterPage,

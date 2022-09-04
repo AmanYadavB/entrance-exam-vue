@@ -1,7 +1,7 @@
 <template>
-<div class="background-color" style="min-height: 38em;">
-    <div class="text-center">
-        <b-spinner variant="info" label="" v-if="status=='LOADING'"></b-spinner>
+<div class="background-color" style="min-height: 100vh;">
+    <div class="text-center" v-if="status=='LOADING'">
+        <b-spinner variant="info" label="" ></b-spinner>
     </div>
     <div class="" v-if="status=='LOADED'">
         <div class="shadow sticky">
@@ -12,7 +12,7 @@
                         </a>
                     {{assesment.name}}
                 </div>
-                <div class="">
+                <div class="" v-if="assesment.name!='Sample Exam'">
                     <div class="fs-5 ms-4 fw-bold bg-white p-2 rounded">
                     <span class="text-info mb-1 fs-6 mt-3" > Assesment Ends In  
                                         {{(getRemainingHours())<10?'0'+(getRemainingHours()):(getRemainingHours())}} : 
@@ -117,7 +117,7 @@ export default {
 </script>
 <style>
     .background-color{
-            background-color: rgb(211, 253, 253);
+            background-color: rgb(236, 255, 253);
         }
     .button-primary{
             border: 0px solid white;

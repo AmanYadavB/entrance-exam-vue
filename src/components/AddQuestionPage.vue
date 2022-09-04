@@ -63,7 +63,9 @@
                             <li v-for="i in outputFormatArraySize" :key="i">
                                  <div class="flex">
                                     <div>
-                                        <b-form-select v-model="question.outputFormat.type" :state="errors.outputFormat.type" class="m-2 p-2 me-4 text-warning border border-warning rounded">
+                                        <b-form-select v-model="question.outputFormat.type" :state="errors.outputFormat.type" 
+                                        @input="validateOutputTypeDescription(i-1)" 
+                                        class="m-2 p-2 me-4 text-warning border border-warning rounded">
                                             <template #first>
                                                 <b-form-select-option :value="null" disabled>-- Select Type --</b-form-select-option>
                                             </template>
@@ -110,6 +112,7 @@
                      <b-form-radio-group
                     class="flex border border-info background-color p-3 mb-3 rounded"
                     v-model="question.difficulty"
+                    :state="errors.difficulty"
                     id="difficulty"
                     >   <label for="difficulty" class="fs-6 fw-bold flex-basis-100">Difficulty</label>
                         <b-form-radio class="m-3" value="easy" name="check-button" >
@@ -127,7 +130,7 @@
                                 <b-icon icon="plus" size="lg" ></b-icon> Hard
                             </div> 
                         </b-form-radio>
-                        <div v-if="errors.difficulty" @input="validateDifficulty" class="m-4 fs-7 text-danger">
+                        <div v-if="!errors.difficulty" class="m-4 invalid-feedback">
                             Difficulty is required
                         </div>
                     </b-form-radio-group>
@@ -145,7 +148,7 @@
                                     <li v-for="testCase in question.sampleTestCases.count" :key="testCase" class="m-2">
                                         <b-form-input id="sample-input" v-model="question.sampleTestCases.input[testCase-1]" 
                                         :state="errors.sampleTestCases.input.required[testCase-1] && errors.sampleTestCases.input.valid[testCase-1]"
-                                        @input="validateSampleTestCases(testCase-1)"></b-form-input>
+                                        @input="validateSampleTestCasesInput(testCase-1)"></b-form-input>
                                         <div class="invalid-feedback fw-normal" v-if="!errors.sampleTestCases.input.required[testCase-1]">
                                             Input is Required
                                         </div>
@@ -163,9 +166,14 @@
                             <b-form-group label-cols="4" label-cols-lg="2 " class="fs-6 fw-bold border border-info background-color p-3 mb-3 rounded" label="Output" label-for="sample-output">
                                 <ol>
                                     <li v-for="testCase in question.sampleTestCases.count" :key="testCase" class="m-2">
-                                        <b-form-input id="sample-output" v-model="question.sampleTestCases.output[testCase-1]" :state="(question.sampleTestCases.output[testCase-1]==null)?null:(question.sampleTestCases.output[testCase-1]=='')?false:true"></b-form-input>
-                                        <div class="invalid-feedback fw-normal">
+                                        <b-form-input id="sample-output" v-model="question.sampleTestCases.output[testCase-1]" 
+                                        :state="errors.sampleTestCases.output.required[testCase-1] && errors.sampleTestCases.output.valid[testCase-1]"
+                                        @input="validateSampleTestCasesOutput(testCase-1)"></b-form-input>
+                                        <div class="invalid-feedback fw-normal" v-if="!errors.sampleTestCases.output.required[testCase-1]">
                                             Output is Required
+                                        </div>
+                                        <div class="invalid-feedback fw-normal" v-else-if="!errors.sampleTestCases.output.valid[testCase-1]">
+                                            Output does not match provided output format
                                         </div>
                                     </li>
                                 </ol>
@@ -175,7 +183,9 @@
                             <b-form-group label-cols="4" label-cols-lg="2 " class="fs-6 fw-bold border border-info background-color p-3 mb-3 rounded" label="Explanation" label-for="sample-explanation">
                                 <ol>
                                     <li v-for="testCase in question.sampleTestCases.count" :key="testCase" class="m-2">
-                                        <b-form-textarea id="sample-explanation" v-model="question.sampleTestCases.explanation[testCase-1]" :state="(question.sampleTestCases.explanation[testCase-1]==null)?null:(question.sampleTestCases.explanation[testCase-1]=='')?false:true"></b-form-textarea>
+                                        <b-form-textarea id="sample-explanation" v-model="question.sampleTestCases.explanation[testCase-1]" 
+                                        :state="errors.sampleTestCases.explanation[testCase-1]"
+                                        @input="validateSampleTestCasesExplanation(testCase-1)"></b-form-textarea>
                                         <div class="invalid-feedback fw-normal">
                                             Explanation is Required
                                         </div>
@@ -196,9 +206,14 @@
                             <b-form-group label-cols="4" label-cols-lg="2 " class="fs-6 fw-bold border border-info background-color p-3 mb-3 rounded" label="Input" label-for="sample-input">
                                 <ol>
                                     <li v-for="testCase in noOfTestCases" :key="testCase" class="m-2">
-                                        <b-form-input id="sample-input" v-model="question.testCases.input[testCase-1]" :state="(question.testCases.input[testCase-1]==null)?null:(question.testCases.input[testCase-1]=='')?false:true"></b-form-input>
-                                        <div class="invalid-feedback fw-normal">
+                                        <b-form-input id="sample-input" v-model="question.testCases.input[testCase-1]" 
+                                        :state="errors.testCases.input.required[testCase-1] && errors.testCases.input.valid[testCase-1]"
+                                        @input="validateTestCasesInput(testCase-1)"></b-form-input>
+                                        <div class="invalid-feedback fw-normal" v-if="!errors.testCases.input.required[testCase-1]">
                                             Input is Required
+                                        </div>
+                                        <div class="invalid-feedback fw-normal" v-else-if="!errors.testCases.input.valid[testCase-1]">
+                                            Input does not match provided input format
                                         </div>
                                         <div class="input-live-help fs-7 m-2 fw-normal">
                                             Seperate function arguments by comma ( , )&emsp13; e.g. 1, 2, 3
@@ -212,9 +227,13 @@
                                 <ol>
                                     <li v-for="testCase in noOfTestCases" :key="testCase" class="m-2">
                                         <b-form-input id="sample-output" v-model="expectedOutputArr[testCase-1]" 
-                                        :state="(expectedOutputArr[testCase-1]==null )?null:(expectedOutputArr[testCase-1]=='')?false:true"></b-form-input>
-                                        <div class="invalid-feedback fw-normal">
-                                            Expected Output is Required
+                                        :state="errors.testCases.expectedOutput.required[testCase-1] && errors.testCases.expectedOutput.valid[testCase-1]"
+                                        @input="validateTestCasesExpectedOutput(testCase-1)"></b-form-input>
+                                        <div class="invalid-feedback fw-normal" v-if="!errors.testCases.expectedOutput.required[testCase-1]">
+                                            Output is Required
+                                        </div>
+                                        <div class="invalid-feedback fw-normal" v-else-if="!errors.testCases.expectedOutput.valid[testCase-1]">
+                                            Output does not match provided output format
                                         </div>
                                     </li>
                                 </ol>
@@ -224,7 +243,9 @@
                     </div>
                 </div>
                 <div class="border border-info border-top-0 bg-white rounded-bottom pt-3 shadow">
-                    <b-button type="submit" variant="warning" class="ms-3 mb-3">Add Question</b-button>
+                    <b-button type="submit" variant="warning" class="ms-3 mb-3">
+                        <b-spinner small v-if="addStatus=='LOADING'" class="me-1 p-1"></b-spinner>
+                        Add Question</b-button>
                     <b-button type="reset" variant="warning" class="ms-3 mb-3">Reset</b-button>
                 </div>
                 </b-form>
@@ -234,7 +255,6 @@
 </template>
 <script>
 import {addQuestion} from '../services/questions';
-import {required, numeric} from 'vuelidate/lib/validators';
 import ExaminerNavBar from './ExaminerNavBar.vue';
 import ExaminerQuestionNavBar from './NavBars/ExaminerQuestionNavBar.vue';
 import Vue from 'vue';
@@ -243,6 +263,7 @@ export default {
     data () {
         return {
             status: '',
+            addStatus: '',
             inputFormatArraySize: 1,
             outputFormatArraySize: 1,
             constraintsArraySize: 1,
@@ -250,22 +271,22 @@ export default {
                 name: '',
                 statement: '',
                 inputFormat: {
-                    type: [],
-                    description: []
+                    type: [''],
+                    description: ['']
                 },
                 outputFormat: {
                     type: '',
                     description: ''
                 },
-                constraints: [],
+                constraints: [''],
                 sampleTestCases: {
                     count: 1,
-                    input: [],
-                    output: [],
-                    explanation: []
+                    input: [''],
+                    output: [''],
+                    explanation: ['']
                 },
                 testCases: {
-                    input: [],
+                    input: [''],
                     expectedOutput: '',
                 },
                 difficulty: '',
@@ -284,12 +305,25 @@ export default {
                         required: [],
                         valid: []
                     },
-                    output: [],
+                    output: {
+                        required: [],
+                        valid: []
+                    },
                     explanation: []
+                },
+                testCases: {
+                    input: {
+                        required: [],
+                        valid: []
+                    },
+                    expectedOutput: {
+                        required: [],
+                        valid: []
+                    }
                 }
             },
             noOfTestCases: 1,
-            expectedOutputArr: [],
+            expectedOutputArr: [''],
             selected: null  
         }
     },
@@ -307,9 +341,9 @@ export default {
             this.constraintsArraySize = this.constraintsArraySize > 1 ? this.constraintsArraySize-1 :this.constraintsArraySize;
         },
         async addQuestionForm(){
-            const data = this.question;
+            let data = this.question;
             console.log(data);
-            if(!this.$v.question.$invalid )
+            if(this.questionIsValid() )
                 {
                     
                     console.log(data);
@@ -323,7 +357,9 @@ export default {
                         data.testCases.input[i] = `{${data.testCases.input[i]}}`;
                         data.testCases.expectedOutput += ``
                     }
+                    console.log(data);
                 try{
+                    this.addStatus = 'LOADING';
                     const response = await addQuestion(data);
                     console.log(response);
                     Vue.$toast.success('Question - '+response.data.name +' Added Successfully');
@@ -333,19 +369,58 @@ export default {
                     Vue.$toast.error(error.message);
                     
                 }
+                this.addStatus = 'LOADED';
                 }
             else {
                 Vue.$toast.error('Please Enter A Valid Question');
                 this.status = 'INVALID';
-                this.setToEmptyString();
+                //this.setToEmptyString();
             }
+        },
+        questionIsValid() {
+            this.validateName();
+            this.validateStatement(); 
+            this.validateDifficulty(); 
+            for (let i=0; i< (this.question.inputFormat.type.length ) ;i++) {
+                this.validateInputTypeDescription(i);
+                this.validateInputFormatDescription(i);
+            }
+            this.validateOutputTypeDescription();
+            this.validateOutputFormatDescription();
+            for (let i=0;i< this.question.constraints.length ; i++) {
+                this.validateConstraints(i);
+            }
+            for (let i=0;i< this.question.sampleTestCases.input.length;i++) {
+                this.validateSampleTestCasesInput(i);
+                this.validateSampleTestCasesOutput(i);
+                this.validateSampleTestCasesExplanation(i);
+            }
+            for (let i=0;i< this.question.testCases.input.length;i++) {
+                this.validateTestCasesExpectedOutput(i);
+                this.validateTestCasesInput(i);
+            }
+
+            return (this.errors.name && 
+                    this.errors.statement && 
+                        this.errors.inputFormat.type.reduce((acc, cur) => acc&&cur )&& 
+                            this.errors.inputFormat.description.reduce((acc, cur) => acc&&cur) &&
+                this.errors.constraints.reduce((acc, cur) => acc&&cur) && 
+                    this.errors.difficulty && 
+                        this.errors.sampleTestCases.input.required.reduce((acc, cur) => acc&&cur) && 
+                        this.errors.sampleTestCases.input.valid.reduce((acc, cur) => acc&&cur) &&
+                            this.errors.sampleTestCases.output.required.reduce((acc, cur) => acc&&cur) && 
+                            this.errors.sampleTestCases.output.valid.reduce((acc, cur) => acc&&cur) &&
+                                this.errors.sampleTestCases.explanation.reduce((acc, cur) => acc&&cur) &&
+                this.errors.testCases.input.required.reduce((acc, cur) => acc&&cur) && 
+                this.errors.testCases.input.valid.reduce((acc, cur) => acc&&cur) && 
+                    this.errors.testCases.expectedOutput.required.reduce((acc, cur) => acc&&cur) &&
+                    this.errors.testCases.expectedOutput.valid.reduce((acc, cur) => acc&&cur))
         },
         validateName() {
             this.errors = {
                 ...this.errors,
                 name : (this.question.name == '') ? false : true
             }
-            console.log(this.errors);
         },
         validateStatement() {
             this.errors = {
@@ -355,37 +430,26 @@ export default {
         },
         validateInputFormatDescription(index) {
             this.errors.inputFormat.description[index] = this.question.inputFormat.description[index] == '' ? false : true;
-            console.log(this.question);
-            console.log(this.errors);
         },
         validateInputTypeDescription(index) {
             this.errors.inputFormat.type[index] = this.question.inputFormat.type[index] == '' ? false : true;
-            console.log(this.question);
-            console.log(this.errors);
         },
         validateOutputFormatDescription() {
             this.errors.outputFormat.description = this.question.outputFormat.description == '' ? false : true;
-            console.log(this.question);
-            console.log(this.errors);
         },
         validateOutputTypeDescription() {
             this.errors.outputFormat.type = this.question.outputFormat.type == '' ? false : true;
-            console.log(this.question);
-            console.log(this.errors);
         },
         validateConstraints(index) {
             this.errors.constraints[index] = this.question.constraints[index] == '' ? false : true;
-            console.log(this.question);
-            console.log(this.errors);
         },
         validateDifficulty() {
             this.errors = {
                 ...this.errors,
                 difficulty : (this.question.difficulty == '') ? false : true
             }
-            console.log(this.errors);
         },
-        validateSampleTestCases(index) {
+        validateSampleTestCasesInput(index) {
             this.errors.sampleTestCases.input.required[index] = this.question.sampleTestCases.input[index] == '' ? false : true;
             if (this.question.inputFormat.type.length == 0 || this.question.inputFormat.description.length == 0)
                 {
@@ -402,7 +466,7 @@ export default {
              for (let i=0; i<args.length; i++) {
                 console.log(args[i]+this.question.inputFormat.type[i]);
                 if ( this.question.inputFormat.type[i] == 'int') {
-                    if (isNaN(parseInt(args[i])))
+                    if (!/^[0-9]+$/.test(args[i]))
                         {
                             this.errors.sampleTestCases.input.valid[index] = false;
                             return;
@@ -411,7 +475,7 @@ export default {
                     this.errors.sampleTestCases.input.valid[index] = true;
                 }
                 if ( this.question.inputFormat.type[i] == 'String') {
-                    if (!isNaN(args[i]))
+                    if (/[0-9]/.test(args[i]))
                         {
                             this.errors.sampleTestCases.input.valid[index] = false;
                             return;
@@ -421,122 +485,124 @@ export default {
                 }
             }
             this.errors.sampleTestCases.input.valid[index] = true;
-            console.log(this.question);
-            console.log(this.errors);
+        },
+        validateSampleTestCasesOutput(index) {
+            this.errors.sampleTestCases.output.required[index] = this.question.sampleTestCases.output[index] == '' ? false : true;
+            
+            if (this.question.outputFormat.type == '' || this.question.outputFormat.description == '')
+                {
+                    this.errors.sampleTestCases.output.valid[index] = false;
+                    return; 
+                }
+                if ( this.question.outputFormat.type == 'int') {
+                    if (!/^[0-9]+$/.test(this.question.sampleTestCases.output[index]))
+                        {
+                            this.errors.sampleTestCases.output.valid[index] = false;
+                            return;
+                        }
+                    console.log(parseInt(this.question.sampleTestCases.output[index]));
+                    this.errors.sampleTestCases.output.valid[index] = true;
+                }
+                if ( this.question.outputFormat.type == 'String') {
+                    if (/[0-9]/.test(this.question.sampleTestCases.output[index]))
+                        {
+                            this.errors.sampleTestCases.output.valid[index] = false;
+                            return;
+                        }
+                    //console.log(parseInt());
+                    this.errors.sampleTestCases.output.valid[index] = true;
+                }
+            this.errors.sampleTestCases.output.valid[index] = true;
+        },
+        validateSampleTestCasesExplanation(index) {
+            this.errors.sampleTestCases.explanation[index] = 
+                this.question.sampleTestCases.explanation[index] == '' ? false : true;
+        },
+        validateTestCasesInput(index) {
+            this.errors.testCases.input.required[index] = this.question.testCases.input[index] == '' ? false : true;
+            if (this.question.inputFormat.type.length == 0 || this.question.inputFormat.description.length == 0)
+                {
+                    this.errors.testCases.input.valid[index] = false;
+                    return; 
+                }
+            
+            let args = this.question.testCases.input[index].split(", ");
+            console.log(args);
+            if (args.length != this.question.inputFormat.type.length || args[args.length-1] == '') 
+                {
+                    this.errors.testCases.input.valid[index] = false;
+                    return; 
+                }
+             for (let i=0; i<args.length; i++) {
+                console.log(args[i]+this.question.inputFormat.type[i]);
+                if ( this.question.inputFormat.type[i] == 'int') {
+                    if (!/^[0-9]+$/.test(args[i]))
+                        {
+                            this.errors.testCases.input.valid[index] = false;
+                            return;
+                        }
+                    this.errors.testCases.input.valid[index] = true;
+                }
+                if ( this.question.inputFormat.type[i] == 'String') {
+                    if (/[0-9]/.test(args[i]))
+                        {
+                            this.errors.testCases.input.valid[index] = false;
+                            return;
+                        }
+                    this.errors.testCases.input.valid[index] = true;
+                }
+            }
+            this.errors.testCases.input.valid[index] = true;
+        },
+        validateTestCasesExpectedOutput(index) {
+            this.errors.testCases.expectedOutput.required[index] = this.expectedOutputArr[index] == '' ? false : true;
+            if (this.question.outputFormat.type == '' || this.question.outputFormat.description == '')
+                {
+                    this.errors.testCases.expectedOutput.valid[index] = false;
+                    return; 
+                }
+                if ( this.question.outputFormat.type == 'int') {
+                    if (!/^[0-9]+$/.test(this.expectedOutputArr[index]))
+                        {
+                            this.errors.testCases.expectedOutput.valid[index] = false;
+                            return;
+                        }
+                    this.errors.testCases.expectedOutput.valid[index] = true;
+                }
+                if ( this.question.outputFormat.type == 'String') {
+                    if (/[0-9]/.test(this.expectedOutputArr[index]))
+                        {
+                            this.errors.testCases.expectedOutput.valid[index] = false;
+                            return;
+                        }
+                    this.errors.testCases.expectedOutput.valid[index] = true;
+                }
+            this.errors.testCases.expectedOutput.valid[index] = true;
         },
         onReset() {
             this.question = {
-                name: null,
-                statement: null,
+                name: '',
+                statement: '',
                 inputFormat: {
-                    type: [null],
-                    description: [null]
+                    type: [''],
+                    description: ['']
                 },
                 outputFormat: {
-                    type: null,
-                    description: null
+                    type: '',
+                    description: ''
                 },
-                constraints: [null],
+                constraints: [''],
                 sampleTestCases: {
                     count: 1,
-                    input: [null],
-                    output: [null],
-                    explanation: [null]
+                    input: [''],
+                    output: [''],
+                    explanation: ['']
                 },
                 testCases: {
-                    input: [null],
-                    expectedOutput: null,
+                    input: [''],
+                    expectedOutput: '',
                 },
-                difficulty: null,
-            }
-        },
-        advanceValidation() {
-            if (this.question.inputFormat.type[0] == null 
-                    || this.question.inputFormat.type[0] == ''
-                    || this.question.inputFormat.description[0] == null 
-                    || this.question.inputFormat.description[0] == ''
-                    || this.question.outputFormat.type == null 
-                    || this.question.outputFormat.type == ''
-                    || this.question.sampleTestCases.input[0] == null
-                    || this.question.sampleTestCases.input[0] == ''
-                    || this.question.sampleTestCases.output[0] == null
-                    || this.question.sampleTestCases.output[0] == ''
-                    || this.question.sampleTestCases.explanation[0] == null
-                    || this.question.sampleTestCases.explanation[0] == ''
-                    || this.question.constraints[0] == null
-                    || this.question.constraints[0] == ''
-                    || this.question.testCases.input[0] == null
-                    || this.question.testCases.input[0] == ''
-                    || this.question.testCases.expectedOutput[0] == null
-                    || this.question.testCases.expectedOutput[0] == ''
-                    || this.question.difficulty == null
-                    || this.question.difficulty == '')
-                return false;
-                return true;
-        },
-        setToEmptyString() {
-            
-                this.question.name = this.question.name == null ? '' : this.question.name;
-                this.question.statement = this.question.statement == null ? '' : this.question.statement;
-                this.question.inputFormat.type[0] = this.question.inputFormat.type[0] == null ? '' : this.question.inputFormat.type[0];
-                this.question.inputFormat.description[0] = this.question.inputFormat.description[0] == null ? '' : this.question.inputFormat.description[0];
-                this.question.outputFormat.type = this.question.outputFormat.type == null ? '' : this.question.outputFormat.type;
-                this.question.outputFormat.description = this.question.outputFormat.description == null ? '' : this.question.outputFormat.description;
-                this.question.sampleTestCases.input[0] = this.question.sampleTestCases.input[0] == null ? '' : this.question.sampleTestCases.input[0];
-                this.question.sampleTestCases.output[0] = this.question.sampleTestCases.output[0] == null ? '' : this.question.sampleTestCases.output[0];
-                this.question.sampleTestCases.explanation[0] = this.question.sampleTestCases.explanation[0] == null ? '' : this.question.sampleTestCases.explanation[0];
-                this.question.constraints[0] = this.question.constraints[0] == null ? '' : this.question.constraints[0];
-                this.question.testCases.input[0] = this.question.testCases.input[0] == null ? '' : this.question.testCases.input[0];
-                this.question.testCases.expectedOutput = this.question.testCases.expectedOutput == null ? '' : this.question.testCases.expectedOutput;
-                this.question.difficulty = this.question.difficulty == null ? '' : this.question.difficulty
-                
-    }},
-    validations: {
-        question: {
-            name: {
-                required
-            },
-            statement: {
-                required
-            },
-            inputFormat: {
-                type: {
-                    required
-                },
-                description: {
-                    required: function(value) {
-                        return value.length > 0;
-                    }
-                }
-            },
-            outputFormat: {
-                type : {
-                    required
-                },
-                description : {
-                    required
-                }
-            },
-            constraints: {
-                required
-            },
-            sampleTestCases: {
-                count: {
-                    required,
-                    numeric
-                },
-                input: {
-                    required
-                },
-                output : {
-                    required
-                },
-                explanation : {
-                    required
-                }
-            },
-            difficulty: {
-                required
+                difficulty: '',
             }
         }
     },

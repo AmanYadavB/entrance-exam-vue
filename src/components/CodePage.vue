@@ -1,6 +1,9 @@
 <template>
   <div class="body background-color">
-    <div class="shadow sticky" v-if="status='LOADED'">
+    <div class="text-center" v-if="status=='LOADING'">
+        <b-spinner variant="info" label="" class="mt-3" ></b-spinner>
+    </div>
+    <div class="shadow sticky" v-if="status=='LOADED'">
             <div class="flex jc-space-between pe-4 bg-info text-white">
                 <div class="fs-5 fw-bold ps-4 p-2 " style="width: 25em;height:2em;overflow:hidden">
                         <a :href="`/${assesmentId}/questions`" class="text-white">
@@ -8,7 +11,7 @@
                         </a>
                     {{assesment.name}}
                 </div>
-                <div class="fs-5 fw-bold ms-4 bg-white p-2 rounded">
+                <div class="fs-5 fw-bold ms-4 bg-white p-2 rounded" v-if="assesment.name!='Sample Exam'">
                     <span class="text-info mb-1 fs-6 mt-3" > Assesment Ends In  
                                         {{(getRemainingHours())<10?'0'+(getRemainingHours()):(getRemainingHours())}} : 
                                             {{(getRemainingMinutes()-1)<10?'0'+(getRemainingMinutes()-1):(getRemainingMinutes()-1)}} : 
@@ -20,7 +23,7 @@
                 {{showQuestionText}}</b-button>
             </div>
         </div>
-    <div class="flex container-div jc-space-between ms-3" >
+    <div class="flex container-div jc-space-between ms-3" v-if="status=='LOADED'">
             <div class="question-area jc-space-between border bg-warning-light border-primary mt-3 mb-3 rounded flex-basis-50 p-1 shadow" >
                 <div class="bg-info p-2 rounded fs-5 fw-bold m-2 mb-3 border border-primary shadow"><span class="text-light">{{question.name}}</span></div>
                 <div class="rounded m-2 mb-3 border border-primary bg-white shadow" id="question-code">
@@ -206,7 +209,7 @@ export default {
     name: 'CodePage',
     data(){
         return {
-            status: 'LOADING',
+            status: '',
             runStatus: 'LOADED',
             submitStatus: 'LOADED',
             code: '',
@@ -253,13 +256,12 @@ export default {
                 this.assesment = response.data;
                 this.assesmentEndTime = this.assesment.endTime;
                 console.log(this.assesment);
-                this.status = "LOADED";
+                //this.status = "LOADED";
             }
             catch (error) {
                 this.status = "ERROR";
                 this.error = error.message;
             }
-            this.setEditor();
         },
         async getCurQuestion(){
             this.questionId = router.history.current.params.questionId;
@@ -270,20 +272,16 @@ export default {
                 this.sample = this.question.sampleTestCases;
                 this.inputFormat = this.question.inputFormat;
                 this.outputFormat = this.question.outputFormat;
-                let inputType = []
-                    for(let i=0;i<this.inputFormat.type.length;i++){
-                   inputType.push(this.inputFormat.type[i] + ` input${i+1}`);
-                }
-                    editor.getSession().setValue(`public ${this.outputFormat.type} solution (${inputType.toString()}) {
-    //write your code here    
-    return a;
-}`);  
                 this.sample = this.question.sampleTestCases;
+                    this.status = 'LOADED';
+                    this.setEditor();
             }
             catch(error){
                 console.log(error);
+                this.status = 'LOADED';
             }
-            this.status = 'LOADED';
+            
+            
         },
         async codeRunner(){
             this.runStatus = 'LOADING';
@@ -413,6 +411,14 @@ export default {
                 enableLiveAutocompletion: true,
                 enableSnippets: true
             });
+            let inputType = []
+                    for(let i=0;i<this.inputFormat.type.length;i++){
+                   inputType.push(this.inputFormat.type[i] + ` input${i+1}`);
+                }
+            editor.getSession().setValue(`public ${this.outputFormat.type} solution (${inputType.toString()}) {
+    //write your code here    
+    return a;
+}`);  
         },
         getRemainingMinutes() {
             let minutes = this.assesmentEndTime.minutes-this.currentTimeMinutes;

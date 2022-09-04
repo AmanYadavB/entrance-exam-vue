@@ -1,18 +1,26 @@
 <template>
 <div>
-    <div class="text-center">
-        <b-spinner variant="info" label="" class="mt-3" v-if="status=='LOADING'"></b-spinner>
+    <div class="text-center" v-if="status=='LOADING'">
+        <b-spinner variant="info" label="" class="mt-3" ></b-spinner>
     </div>
     
-    <div :class="{'background-color': assesments.length}" v-if="status=='LOADED' " style="min-height: 38em">
+    <div :class="{'background-color': assesments.length != 0 && !assesments.reduce((acc, cur) => acc && isEnded(cur),true)}" v-if="status=='LOADED' " style="min-height: 100vh">
         <ExamineeNavBar />
-        <div v-if="assesments.length == 0" class="flex jc-cent w-100 h-100 al-cent">
+        <div v-if="(assesments.length == 0 || assesments.reduce((acc, cur) => acc && isEnded(cur),true)) " class="flex jc-cent w-100 h-100 al-cent">
                 <div class="m-5 p-5 flex jc-cent al-cent background-color w-70 h-100 border border-info rounded" style="min-height: 25em">
-                    <div class="fw-bold fs-1 text-center" >OOps !! <br>No Exam Today</div>
+                    <div class="fw-bold fs-1 text-center flex-basis-100" >OOps !! <br>No Exam Today</div>
+                    <div class="flex jc-cent p-4">
+                        <div>
+                            <b-button variant="info" class="p-2" :href="`/${sampleExam._id}/questions`">
+                                Give a Sample Exam
+                            </b-button>
+                        </div>
+                    </div>
                 </div>
             </div>
         <div v-else>
             <div v-for="assesment in assesments" :key="assesment._id">
+                <div v-if="!isEnded(assesment)">
                 <div class="m-4 border bg-info border-info rounded">
                     <div class=" p-1 ps-2 text-white rounded-top">
                         Assesment no. {{assesments.indexOf(assesment)+1}}
@@ -43,13 +51,14 @@
                         </div>
                 </div>
             </div>
+            </div>
         </div>
     </div>
 </div>
 </template>
 <script>
 //import router from '@/router';
-import {getAssesments} from '../services/assesments'
+import {getSampleAssesment, getAssesments} from '../services/assesments'
 import ExamineeNavBar from './ExamineeNavBar.vue';
 export default {
     name: "AssesmentsPage",
@@ -63,7 +72,8 @@ export default {
             currentDate: null,
             currentTime: null,
             isLoaded: null,
-            examCount : 0
+            examCount : 0,
+            sampleExam : {}
         };
     },
     methods: {
@@ -71,14 +81,19 @@ export default {
             this.status='LOADING';
             try {
                 const response = await getAssesments(this.$store.state.auth.userId);
-                this.assesments = response.data;
-                console.log(this.assesments);
-                this.status = "LOADED";
+                //this.assesments = response.data;
+                //console.log(this.assesments.reduce((acc, cur) => acc && this.isEnded(cur),true));
+                //console.log(this.assesments);
+                this.assesments = response.data.filter(assesment => assesment.name!='Sample Exam');
+                const response1 = await getSampleAssesment();
+                this.sampleExam = response1.data;
+                this.status = 'LOADED';
             }
             catch (error) {
-                this.status = "ERROR";
+                this.status = 'ERROR';
                 this.error = error.message;
             }
+            
         },
         isStarted(assesment) {
             let assesmentStartTime = new Date(assesment.date.year,assesment.date.month-1,assesment.date.date,assesment.startTime.hours,assesment.startTime.minutes);
@@ -145,9 +160,6 @@ export default {
 }
 </script>
 <style>
-    .background-color{
-            background-color: rgb(211, 253, 253);
-        }
     .button-primary{
             border: 0px solid white;
             border-radius: 0.2em;

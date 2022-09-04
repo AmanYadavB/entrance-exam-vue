@@ -3,8 +3,8 @@
     <div class="text-center">
         <b-spinner variant="info" label="" v-if="status=='LOADING'"></b-spinner>
     </div>
-    <ExaminerNavBar />
-    <div class="background-color pt-4" v-if="status=='LOADED'">
+    <ExaminerNavBar v-if="status=='LOADED'"/>
+    <div class="background-color pt-4" v-if="status=='LOADED'" style="min-height: 100vh;">
         <ExaminerQuestionNavBar />
         <div v-for="(question, index) in questions" :key="question._id">
             <div v-if="true" class="m-4 mt-0 border border-info rounded">
@@ -26,7 +26,9 @@
                         <div class="fs-5 fw-bold me-2 mb-3 p-3 background-color rounded border border-info">Test Cases : <br /><span class="fw-normal fs-6" v-for="(input, index) in question.testCases.input" :key="input"><strong>{{index+1}}. Input:</strong> {{question.testCases.input[index].replace(/[{}]/gi,"")}} <strong>ExpectedOutput:</strong> {{question.testCases.expectedOutput.replace(/[{}]/gi,"").split(",")[index]}} <br /></span></div>
                     </b-collapse>
                     <b-button v-b-toggle="question._id"  class="mt-1 me-3" variant="warning" @click.prevent >View More / Less</b-button>
-                    <b-button class="mt-1 me-3" variant="warning" href="" @click="deleteQuestion(question._id)">Delete Question</b-button>
+                    <b-button class="mt-1 me-3" variant="warning" href="" @click="deleteQuestion(question._id)">
+                        <b-spinner small v-if="deleteStatus.status=='LOADING' && deleteStatus.id == question._id" class="me-1 p-1"></b-spinner>
+                        Delete Question</b-button>
                 </div>
             </div>
       </div>
@@ -47,6 +49,10 @@ export default {
         return {
             primary: "aman",
             status: "LOADING",
+            deleteStatus: {
+                id: '',
+                status: ''
+            },
             error: "",
             questions: [],
             assesmentId: "",
@@ -76,6 +82,8 @@ export default {
         },
         async deleteQuestion(questionId) {
             try{
+                    this.deleteStatus.id = questionId;
+                    this.deleteStatus.status = 'LOADING'
                     const response = await deleteQuestion(questionId);
                     console.log(response);
                     Vue.$toast.success('Question - '+response.data.name +' Deleted Successfully');
@@ -84,6 +92,7 @@ export default {
                     console.log(error.message);
                     Vue.$toast.error(error.message);
                 }
+                this.deleteStatus.status = 'LOADED';
             await this.getAllQuestions();
         },
         viewQuestion(index) {
@@ -108,9 +117,6 @@ export default {
 }
 </script>
 <style>
-    .background-color{
-            background-color: rgb(211, 253, 253);
-        }
     .button-primary{
             border: 0px solid white;
             border-radius: 0.2em;

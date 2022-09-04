@@ -1,103 +1,105 @@
 <template>
-<div class="background-color m-10">
-    <div class="flex jc-cent ">
-        <div class="border border-info rounded bg-info text-white flex-basis-70 shadow">
-            <div class="p-3 fs-4 text-center fw-bold">Register To Entrance Exam </div>
+<div class="background-color flex al-cent jc-cent" style="height: 100vh;">
+    <div class="flex-basis-50 m-5">
+        <div class="">
+            <div class="border border-info rounded bg-info text-white flex-basis-70 shadow">
+                <div class="p-3 fs-4 text-center fw-bold">Register To Entrance Exam </div>
+            </div>
         </div>
-    </div>
-    <div class="flex jc-cent">
-        <div class="border border-info rounded flex-basis-70 bg-white shadow">
-            
-                <b-container fluid class="m-4">
-                    
-                    <b-row class="my-3 mb-2">
-                        <b-row sm="3" class="mb-2">
-                        <label for="input-none" class="fs-6 fw-bold">Name:</label>
+        <div class="">
+            <div class="border border-info rounded flex-basis-70 bg-white shadow">
+                
+                    <b-container fluid class="m-4">
+                        
+                        <b-row class="my-3 mb-2">
+                            <b-row sm="3" class="mb-2">
+                            <label for="input-none" class="fs-6 fw-bold">Name:</label>
+                            </b-row>
+                            <b-col sm="9">
+                            <b-form-input id="input-none" :state="isNameValid" class="input-overflow" placeholder='Name' v-model="form.name" @input="onNameInput"></b-form-input>
+                            </b-col>
+                            <div v-if="isNameValid!=null && !isNameValid">
+                                <div id="" class="fs-7 ms-1 mt-2 text-danger" v-if="!$v.form.name.required">
+                                    Name is required
+                                </div>
+                                <div id="" class="fs-7 ms-1 mt-2 text-danger" v-if="!$v.form.name.minLength">
+                                    Name should have atleast 3 letters
+                                </div>
+                            </div>
                         </b-row>
-                        <b-col sm="9">
-                        <b-form-input id="input-none" :state="isNameValid" class="input-overflow" placeholder='Name' v-model="form.name" @input="onNameInput"></b-form-input>
-                        </b-col>
-                        <div v-if="isNameValid!=null && !isNameValid">
-                            <div id="" class="fs-7 ms-1 mt-2 text-danger" v-if="!$v.form.name.required">
-                                Name is required
-                            </div>
-                            <div id="" class="fs-7 ms-1 mt-2 text-danger" v-if="!$v.form.name.minLength">
-                                Name should have atleast 3 letters
-                            </div>
-                        </div>
-                    </b-row>
 
-                    <b-row class="my-3 mb-2">
-                        <b-row sm="3" class="mb-2">
-                        <label for="input-none" class="fs-6 fw-bold">Email:</label>
+                        <b-row class="my-3 mb-2">
+                            <b-row sm="3" class="mb-2">
+                            <label for="input-none" class="fs-6 fw-bold">Email:</label>
+                            </b-row>
+                            <b-col sm="9">
+                            <b-form-input id="input-none" :state="isEmailValid" class="input-overflow" placeholder='Email' v-model="form.email" @input="onEmailInput"></b-form-input>
+                            </b-col>
+                            <div v-if="isEmailValid!=null && !isEmailValid">
+                                <div id="" class="fs-7 ms-1 mt-2 text-danger" v-if="!$v.form.email.required">
+                                    Email required
+                                </div>
+                                <div id="" class="fs-7 ms-1 mt-2 text-danger" v-if="!$v.form.email.email">
+                                    Invalid email
+                                </div>
+                            </div>
                         </b-row>
-                        <b-col sm="9">
-                        <b-form-input id="input-none" :state="isEmailValid" class="input-overflow" placeholder='Email' v-model="form.email" @input="onEmailInput"></b-form-input>
-                        </b-col>
-                        <div v-if="isEmailValid!=null && !isEmailValid">
-                            <div id="" class="fs-7 ms-1 mt-2 text-danger" v-if="!$v.form.email.required">
-                                Email required
-                            </div>
-                            <div id="" class="fs-7 ms-1 mt-2 text-danger" v-if="!$v.form.email.email">
-                                Invalid email
-                            </div>
-                        </div>
-                    </b-row>
 
-                    <b-row class="my-3">
-                        <b-row sm="3" class="mb-2">
-                        <label for="input-none" class="fs-6 fw-bold">Password:</label>
+                        <b-row class="my-3">
+                            <b-row sm="3" class="mb-2">
+                            <label for="input-none" class="fs-6 fw-bold">Password:</label>
+                            </b-row>
+                            <b-col sm="9">
+                            <b-form-input id="input-none" :state="isPasswordValid" class="input-overflow" placeholder="Password" v-model="form.password" @input="onPasswordInput"></b-form-input>
+                            </b-col>
+                            <div v-if="isPasswordValid!=null && !isPasswordValid">
+                                <div id="" class="fs-7 ms-1 mt-2 text-danger" v-if="!$v.form.password.required">
+                                    Password required
+                                </div>
+                                <div id="" class="fs-7 ms-1 mt-2 text-danger" v-else-if="!$v.form.password.minLength">
+                                    Password must have at least 8 characters
+                                </div>
+                                <div id="" class="fs-7 ms-1 mt-2 text-danger" v-else-if="!$v.form.password.containsUppercase">
+                                    Password must have at least one uppercase letter
+                                </div>
+                                <div id="" class="fs-7 ms-1 mt-2 text-danger" v-else-if="!$v.form.password.containsLowercase">
+                                    Password must have at least one lowercase letter
+                                </div>
+                                <div id="" class="fs-7 ms-1 mt-2 text-danger" v-else-if="!$v.form.password.containsNumber">
+                                    Password must have at least one number
+                                </div>
+                                <div id="" class="fs-7 ms-1 mt-2 text-danger" v-else-if="!$v.form.password.containsSpecial">
+                                    Password must have at least one special character
+                                </div>
+                            </div>
                         </b-row>
-                        <b-col sm="9">
-                        <b-form-input id="input-none" :state="isPasswordValid" class="input-overflow" placeholder="Password" v-model="form.password" @input="onPasswordInput"></b-form-input>
-                        </b-col>
-                        <div v-if="isPasswordValid!=null && !isPasswordValid">
-                            <div id="" class="fs-7 ms-1 mt-2 text-danger" v-if="!$v.form.password.required">
-                                Password required
-                            </div>
-                            <div id="" class="fs-7 ms-1 mt-2 text-danger" v-else-if="!$v.form.password.minLength">
-                                Password must have at least 8 characters
-                            </div>
-                            <div id="" class="fs-7 ms-1 mt-2 text-danger" v-else-if="!$v.form.password.containsUppercase">
-                                Password must have at least one uppercase letter
-                            </div>
-                            <div id="" class="fs-7 ms-1 mt-2 text-danger" v-else-if="!$v.form.password.containsLowercase">
-                                Password must have at least one lowercase letter
-                            </div>
-                            <div id="" class="fs-7 ms-1 mt-2 text-danger" v-else-if="!$v.form.password.containsNumber">
-                                Password must have at least one number
-                            </div>
-                            <div id="" class="fs-7 ms-1 mt-2 text-danger" v-else-if="!$v.form.password.containsSpecial">
-                                Password must have at least one special character
-                            </div>
-                        </div>
-                    </b-row>
 
-                    <b-row class="my-3 mb-2">
-                        <b-row sm="3" class="mb-2">
-                        <label for="input-none" class="fs-6 fw-bold">Confirm Password:</label>
+                        <b-row class="my-3 mb-2">
+                            <b-row sm="3" class="mb-2">
+                            <label for="input-none" class="fs-6 fw-bold">Confirm Password:</label>
+                            </b-row>
+                            <b-col sm="9">
+                            <b-form-input id="input-none" :state="isConfPassValid" class="input-overflow" placeholder='Confirm Password' v-model="form.confPass" @input="onConfPasswordInput"></b-form-input>
+                            </b-col>
+                            <div v-if="isConfPassValid!=null && !isConfPassValid">
+                                <div id="" class="fs-7 ms-1 mt-2 text-danger" v-if="!$v.form.confPass.required">
+                                    Confirm Password required
+                                </div>
+                                <div id="" class="fs-7 ms-1 mt-2 text-danger" v-if="!$v.form.confPass.isSame">
+                                    Password do not match
+                                </div>
+                            </div>
                         </b-row>
-                        <b-col sm="9">
-                        <b-form-input id="input-none" :state="isConfPassValid" class="input-overflow" placeholder='Confirm Password' v-model="form.confPass" @input="onConfPasswordInput"></b-form-input>
-                        </b-col>
-                        <div v-if="isConfPassValid!=null && !isConfPassValid">
-                            <div id="" class="fs-7 ms-1 mt-2 text-danger" v-if="!$v.form.confPass.required">
-                                Confirm Password required
-                            </div>
-                            <div id="" class="fs-7 ms-1 mt-2 text-danger" v-if="!$v.form.confPass.isSame">
-                                Password do not match
-                            </div>
-                        </div>
-                    </b-row>
-                    <div class="flex jc-space-between">
-                        <b-button class="bg-warning border-white text-dark mt-3 ps-3 pe-3 fs-5" type="submit" href="./login" @click.prevent="registerUser">
-                            <b-spinner small v-if="status=='LOADING'" class="me-1"></b-spinner>
-                            <span class="sr-only ms-1 p-1" v-if="status=='LOADING'">Loading...</span> 
-                            <span class="sr-only" v-else>Register</span>
-                        </b-button>
-                        <a href="/login" class="mt-4 me-5">Already registered? Login here</a>
-                    </div>   
-                </b-container>
+                        <div class="flex jc-space-between">
+                            <b-button class="bg-warning border-white text-dark mt-3 ps-3 pe-3 fs-5" type="submit" href="./login" @click.prevent="registerUser">
+                                <b-spinner small v-if="status=='LOADING'" class="me-1"></b-spinner>
+                                <span class="sr-only ms-1 p-1" v-if="status=='LOADING'">Loading...</span> 
+                                <span class="sr-only" v-else>Register</span>
+                            </b-button>
+                            <a href="/login" class="mt-4 me-5">Already registered? Login here</a>
+                        </div>   
+                    </b-container>
+            </div>
         </div>
     </div>
 </div>
@@ -111,7 +113,7 @@ import router from '@/router'
         name: 'LoginPage',
         data() {
             return {
-                status: 'LOADED',
+                status: '',
                 form: {
                     name: '',
                     email: '',
@@ -160,7 +162,7 @@ import router from '@/router'
                 }
 
                 else {
-                    this.status = 'LOADED';
+                    this.status = 'ERROR';
                     Vue.$toast.error('Invalid Credentials');
                 }
                 

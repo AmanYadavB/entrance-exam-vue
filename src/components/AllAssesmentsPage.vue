@@ -1,18 +1,18 @@
 <template>
 <div>
-    <div class="text-center">
-        <b-spinner variant="info" label="" class="mt-3" v-if="status=='LOADING'"></b-spinner>
+    <div class="text-center" v-if="status=='LOADING'">
+        <b-spinner variant="info" label="" class="mt-3" ></b-spinner>
     </div>
-    <ExaminerNavBar />
-    <div :class="{'background-color': assesments.length}" v-if="status=='LOADED' " style="min-height: 38em">
+    <ExaminerNavBar v-if="status=='LOADED'"/>
+    <div :class="{'background-color': assesments.length}" v-if="status=='LOADED' " style="min-height: 100vh">
         <ExaminerExamNavBar/>
         <div v-if="assesments.length == 0" class="flex jc-cent w-100 h-100 al-cent">
                 <div class="m-5 mt-5 p-5 background-color w-70 h-50 border border-info rounded">
                     <div class="fw-bold fs-1 text-center" >OOps !! <br>No Exam Here</div>
                 </div>
             </div>
-        <div v-else>
-            <div v-for="assesment in assesments" :key="assesment._id">
+        <div v-else class="pt-4">
+            <div v-for="(assesment) in assesments" :key="assesment._id">
                 <div v-if="true" class="m-4 mt-0 border border-info rounded">
                     <div class="bg-info p-1 ps-2 text-white rounded-top">
                         Assesment no. {{assesments.indexOf(assesment)+1}}
@@ -31,7 +31,10 @@
                             </div>
                             <div class="flex">
                                 <b-button class="mt-1 me-3" variant="warning" :href="`/usersubmittions/${assesment._id}`" >View Submissions</b-button>
-                                <b-button class="mt-1 me-3" variant="warning" href="" @click="deleteAssesment(assesment._id)">Delete Exam</b-button>
+                                <b-button class="mt-1 me-3" variant="warning" href="" @click="deleteAssesment(assesment._id)">
+                                    <b-spinner small v-if="deleteStatus.status=='LOADING' && deleteStatus.id==assesment._id" class="me-1"></b-spinner>
+                                    Delete Exam
+                                    </b-button>
                             </div>  
                         </div>
                     </div>
@@ -53,7 +56,11 @@ export default {
     data() {
         return {
             primary: "aman",
-            status: "LOADING",
+            status: 'LOADING',
+            deleteStatus: {
+                id: '',
+                status: ''
+            },
             error: "",
             assesments: this.getAllassesments(),
             isLoaded: null,
@@ -81,6 +88,8 @@ export default {
         },
         async deleteAssesment(examId) {
             try{
+                    this.deleteStatus.status = 'LOADING';
+                    this.deleteStatus.id = examId;
                     const response = await deleteAssesment(examId);
                     console.log(response);
                     Vue.$toast.success('Assesment - '+response.data.name +' Deleted Successfully');
@@ -89,6 +98,7 @@ export default {
                     console.log(error.message);
                     Vue.$toast.error(error.message);
                 }
+            this.deleteStatus.status = 'LOADED';
             await this.getAllassesments();
         },
         getMonth (month) {
@@ -103,9 +113,6 @@ export default {
 }
 </script>
 <style>
-    .background-color{
-            background-color: rgb(211, 253, 253);
-        }
     .button-primary{
             border: 0px solid white;
             border-radius: 0.2em;

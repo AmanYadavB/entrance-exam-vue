@@ -1,9 +1,12 @@
 import axios from 'axios'
 import store from '../store'
-import config from '@/config';
+//import process from 'process'
+//import config from '@/config';
+const baseUrl = process.env.VUE_APP_API_URL;
+
 export const registerUser = async(credentials) =>{
     try{
-        const response = await axios.post(`${config.baseUrl}/api/auth/register`,credentials);
+        const response = await axios.post(`${baseUrl}/api/auth/register`,credentials);
         const data = response.data;
         console.log(data);
         return data;
@@ -18,7 +21,7 @@ export const registerUser = async(credentials) =>{
 }
 
 export const getAllExaminees = async() =>{
-    const response = await axios.get(`${config.baseUrl}/api/auth/examinees`,
+    const response = await axios.get(`${baseUrl}/api/auth/examinees`,
     {
         headers: {
             'Authorization': store.state.auth.token
@@ -35,12 +38,12 @@ export const getAllExaminees = async() =>{
 
 export const loginUser = async(credentials) =>{
     try{
-        const response = await axios.post(`${config.baseUrl}/api/auth/login`,credentials);
+        const response = await axios.post(`${baseUrl}/api/auth/login`,credentials);
         const data = response.data;
         //console.log(data);
         return data;
     }
     catch(error){
-        throw new Error(error.message ||  "Some Error Ocurred");
+        throw new Error( error.response.status ||  "Some Error Ocurred");
     }
 }

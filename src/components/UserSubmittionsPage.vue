@@ -1,7 +1,7 @@
 <template>
     <div class="">
-        <div class="text-center">
-            <b-spinner variant="info" label="" v-if="status=='LOADING'"></b-spinner>
+        <div class="text-center" v-if="status=='LOADING'">
+            <b-spinner variant="info" label="" ></b-spinner>
         </div>
         <div v-if="status='LOADED'">
             <ExaminerNavBar />
@@ -29,7 +29,7 @@ export default {
     name: 'UserSubmittionsPage',
     data () {
         return {
-            status: '',
+            status: 'LOADING',
             users: []
         }
     },

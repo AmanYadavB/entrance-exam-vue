@@ -1,10 +1,12 @@
 import axios from 'axios'
 import store from '../store'
-import config from '../config'
+//import config from '../config'
+
+const baseUrl = process.env.VUE_APP_API_URL;
 
 export const getAllUserSubmition = async(examId) =>{
     console.log(store.state.auth.token);
-    const response = await axios.get(`${config.baseUrl}/answers/users/${examId}`,{
+    const response = await axios.get(`${baseUrl}/answers/users/${examId}`,{
         headers: {
             'Content-Type': 'application/json',
             'Authorization': store.state.auth.token
@@ -21,7 +23,7 @@ export const getAllUserSubmition = async(examId) =>{
 
 export const getAnswer = async(examId, userId) =>{
     console.log(store.state.auth.token);
-    const response = await axios.get(`${config.baseUrl}/answers/answerbyuser/${examId}?userId=${userId}`,{
+    const response = await axios.get(`${baseUrl}/answers/answerbyuser/${examId}?userId=${userId}`,{
         headers: {
             'Content-Type': 'application/json',
             'Authorization': store.state.auth.token
@@ -38,7 +40,7 @@ export const getAnswer = async(examId, userId) =>{
 
 export const submitAnswer = async(answer) =>{
     try{
-        const response = await axios.post(`${config.baseUrl}/answers/`,answer,
+        const response = await axios.post(`${baseUrl}/answers/`,answer,
         {
             headers: {
                 'Authorization': store.state.auth.token

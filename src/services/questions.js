@@ -1,8 +1,11 @@
 import axios from 'axios'
 import store from '../store'
-import config from '../config'
+//import config from '../config'
+
+const baseUrl = process.env.VUE_APP_API_URL;
+
 export const getQuestions = async(id) =>{
-        const response = await axios.get(`${config.baseUrl}/assesments/${id}`,
+        const response = await axios.get(`${baseUrl}/assesments/${id}`,
         {
             headers: {
                 'Authorization': store.state.auth.token
@@ -18,7 +21,7 @@ export const getQuestions = async(id) =>{
 }
 
 export const getAllQuestions = async() =>{
-    const response = await axios.get(`${config.baseUrl}/questions`,
+    const response = await axios.get(`${baseUrl}/questions`,
     {
         headers: {
             'Authorization': store.state.auth.token
@@ -35,7 +38,7 @@ export const getAllQuestions = async() =>{
 
 export const getQuestion = async(id) =>{
     try{
-        const response = await axios.get(`${config.baseUrl}/questions/${id}`,
+        const response = await axios.get(`${baseUrl}/questions/${id}`,
         {
             headers: {
                 'Authorization': store.state.auth.token
@@ -52,7 +55,7 @@ export const getQuestion = async(id) =>{
 
 export const addQuestion = async(question) =>{
     try{
-        const response = await axios.post(`${config.baseUrl}/questions/`,question,
+        const response = await axios.post(`${baseUrl}/questions/`,question,
         {
             headers: {
                 'Authorization': store.state.auth.token
@@ -69,7 +72,7 @@ export const addQuestion = async(question) =>{
 
 export const deleteQuestion = async(questionId) =>{
     try{
-        const response = await axios.delete(`${config.baseUrl}/questions/${questionId}`,
+        const response = await axios.delete(`${baseUrl}/questions/${questionId}`,
         {
             headers: {
                 'Authorization': store.state.auth.token

@@ -68,7 +68,9 @@
                         </div>
                     </div>
                     <div class="border border-info border-top-0 bg-white rounded-bottom pt-3 shadow">
-                        <b-button type="submit" variant="warning" class="ms-3 mb-3">Add Exam</b-button>
+                        <b-button type="submit" variant="warning" class="ms-3 mb-3">
+                            <b-spinner small v-if="addStatus=='LOADING'" class="me-1 p-1"></b-spinner>
+                            Add Exam</b-button>
                         <b-button type="reset" variant="warning" class="ms-3 mb-3">Reset</b-button>
                     </div>
                 </b-form>
@@ -89,6 +91,7 @@ export default {
     data () {
         return {
             status: '',
+            addStatus: '',
             exam: {
                 name: '',
                 date: '',
@@ -160,8 +163,6 @@ export default {
         },
         async addExamForm(){
             this.$v.$touch();
-            this.exam.examinees.shift();
-            this.exam.questions.shift();
             console.log(this.exam);
             if(this.validateExam()) {
                 const dateArray = this.exam.date.split("-");
@@ -189,6 +190,7 @@ export default {
                 }
                 console.log(data);
                 try{
+                    this.addStatus = 'LOADING'
                     const response = await addExam(data);
                     console.log(response);
                     Vue.$toast.success('Exam - '+response.data.name +' Added Successfully');
@@ -199,6 +201,7 @@ export default {
                     Vue.$toast.error(error.message);
                     //this.setExamToEmptyString();
                 }
+                this.addStatus = 'LOADED';
             }
             else {
                 Vue.$toast.error('Please Enter Valid Exam Credentials');
@@ -387,28 +390,6 @@ export default {
             },
             endTime: {
                 required,
-                /*validDuration: function() {
-                        try {
-                        const startTimeArray = this.exam.startTime.split(":");
-                        const endTimeArray = this.exam.endTime.split(":");
-                        const startTime = {
-                            hours: parseInt(startTimeArray[0]),
-                            minutes: parseInt(startTimeArray[1])
-                        };
-                        const endTime = {
-                            hours: parseInt(endTimeArray[0]),
-                            minutes: parseInt(endTimeArray[1])
-                        };
-                        if (endTime.hours > startTime.hours)
-                            return true;
-                        else if (endTime.hours == startTime.minutes && endTime.minutes > startTime.minutes+10)
-                            return true;
-                        return false;
-                        }
-                        catch (error) {
-                            return false;
-                        }
-                    }*/
             },
             examinees: {
                 required: function(value) {
