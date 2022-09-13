@@ -50,7 +50,7 @@
                             <label for="input-none" class="fs-6 fw-bold">Password:</label>
                             </b-row>
                             <b-col sm="9">
-                            <b-form-input id="input-none" :state="isPasswordValid" class="input-overflow" placeholder="Password" v-model="form.password" @input="onPasswordInput"></b-form-input>
+                            <b-form-input type="password" id="input-none" :state="isPasswordValid" class="input-overflow" placeholder="Password" v-model="form.password" @input="onPasswordInput"></b-form-input>
                             </b-col>
                             <div v-if="isPasswordValid!=null && !isPasswordValid">
                                 <div id="" class="fs-7 ms-1 mt-2 text-danger" v-if="!$v.form.password.required">
